@@ -34,7 +34,7 @@ int main() {
     TTF_Font* scoreFont = TTF_OpenFont("fonts/Eitai.ttf", 24);
 
     SDL_Surface* backSurface;
-    SDL_Surface* circleSurface = IMG_Load("images/circle.png");
+    SDL_Surface* circleSurface = IMG_Load("images/circle3.png");
     
     if(ch_back == 1) {
         backSurface = IMG_Load("images/background1.png");
@@ -46,16 +46,21 @@ int main() {
     SDL_FreeSurface(backSurface);
     SDL_FreeSurface(circleSurface);
 
+    SDL_Surface* cursorSurface = IMG_Load("images/cursor.png");
+    SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 20, 20);
+    SDL_SetCursor(cursor);
+    SDL_FreeSurface(cursorSurface);
+
     SDL_Rect circleRect, fontRect;
-    circleRect.w = 50;
-    circleRect.h = 50;
+    circleRect.w = 70;
+    circleRect.h = 70;
     circleRect.x = rand() % (800 - 50);
     circleRect.y = rand() % (600 - 50);
 
-    fontRect.w = 50;
-    fontRect.h = 50;
+    fontRect.w = 100;
+    fontRect.h = 60;
     fontRect.x = 0;
-    fontRect.y = 600 - 50;
+    fontRect.y = 600 - 60;
 
     SDL_Event event;
     bool running = true;

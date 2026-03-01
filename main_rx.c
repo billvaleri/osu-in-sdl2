@@ -7,6 +7,7 @@
 
 int score = 0;
 char title[50];
+int mouseX = 0, mouseY = 0;
 
 int main() {
     srand(time(0));
@@ -16,26 +17,31 @@ int main() {
     IMG_Init(IMG_INIT_PNG);
     TTF_Init();
 
-    SDL_Window* window = SDL_CreateWindow("Osu!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    SDL_Window* window = SDL_CreateWindow("Osu RX!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
     SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
 
     SDL_Color fontColor = {255, 255, 255, 255};
     TTF_Font* scoreFont = TTF_OpenFont("fonts/Eitai.ttf", 24);
 
-    SDL_Surface* circleSurface = IMG_Load("images/circle.png");
+    SDL_Surface* circleSurface = IMG_Load("images/circle2.png");
     SDL_Texture* circleTexture = SDL_CreateTextureFromSurface(renderer, circleSurface);
     SDL_FreeSurface(circleSurface);
 
+    SDL_Surface* cursorSurface = IMG_Load("images/cursor.png");
+    SDL_Cursor* cursor = SDL_CreateColorCursor(cursorSurface, 20, 20);
+    SDL_SetCursor(cursor);
+    SDL_FreeSurface(cursorSurface);
+
     SDL_Rect circleRect, fontRect;
-    circleRect.w = 50;
-    circleRect.h = 50;
+    circleRect.w = 70;
+    circleRect.h = 70;
     circleRect.x = rand() % (800 - 50);
     circleRect.y = rand() % (600 - 50);
 
-    fontRect.w = 50;
-    fontRect.h = 50;
+    fontRect.w = 100;
+    fontRect.h = 60;
     fontRect.x = 0;
-    fontRect.y = 600 - 50;
+    fontRect.y = 600 - 60;
 
     SDL_Event event;
     bool running = true;
@@ -45,10 +51,12 @@ int main() {
             if(event.type == SDL_QUIT) {
                 running = false;
             }
+            
+            if(event.type == SDL_MOUSEMOTION) {
+                mouseX = event.motion.x;
+                mouseY = event.motion.y;
+            }
         }
-
-        int mouseX, mouseY;
-        SDL_GetMouseState(&mouseX, &mouseY);
         
         if(mouseX >= circleRect.x && mouseX <= circleRect.x + circleRect.w &&
            mouseY >= circleRect.y && mouseY <= circleRect.y + circleRect.h) {
