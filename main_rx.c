@@ -56,6 +56,19 @@ int main() {
                 mouseX = event.motion.x;
                 mouseY = event.motion.y;
             }
+
+            if(event.type == SDL_KEYDOWN) {
+                if(event.key.keysym.sym == SDLK_ESCAPE) {
+                    SDL_FreeCursor(cursor);
+                    SDL_DestroyWindow(window);
+                    SDL_DestroyTexture(circleTexture);
+                    SDL_DestroyRenderer(renderer);
+                    TTF_Quit();
+                    IMG_Quit();
+                    SDL_Quit();
+                    return 0;
+                }
+            }
         }
         
         if(mouseX >= circleRect.x && mouseX <= circleRect.x + circleRect.w &&
