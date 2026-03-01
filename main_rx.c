@@ -1,0 +1,83 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <time.h>
+
+int score = 0;
+char title[50];
+
+int main() {
+    srand(time(0));
+    sprintf(title, "x%d", score);
+
+    SDL_Init(SDL_INIT_VIDEO);
+    IMG_Init(IMG_INIT_PNG);
+    TTF_Init();
+
+    SDL_Window* window = SDL_CreateWindow("Osu!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    SDL_Color fontColor = {255, 255, 255, 255};
+    TTF_Font* scoreFont = TTF_OpenFont("fonts/Eitai.ttf", 24);
+
+    SDL_Surface* circleSurface = IMG_Load("images/circle.png");
+    SDL_Texture* circleTexture = SDL_CreateTextureFromSurface(renderer, circleSurface);
+    SDL_FreeSurface(circleSurface);
+
+    SDL_Rect circleRect, fontRect;
+    circleRect.w = 50;
+    circleRect.h = 50;
+    circleRect.x = rand() % (800 - 50);
+    circleRect.y = rand() % (600 - 50);
+
+    fontRect.w = 50;
+    fontRect.h = 50;
+    fontRect.x = 0;
+    fontRect.y = 600 - 50;
+
+    SDL_Event event;
+    bool running = true;
+
+    while(running) {
+        while(SDL_PollEvent(&event)) {
+            if(event.type == SDL_QUIT) {
+                running = false;
+            }
+        }
+
+        int mouseX, mouseY;
+        SDL_GetMouseState(&mouseX, &mouseY);
+        
+        if(mouseX >= circleRect.x && mouseX <= circleRect.x + circleRect.w &&
+           mouseY >= circleRect.y && mouseY <= circleRect.y + circleRect.h) {
+            score += 1;
+            circleRect.x = rand() % (800 - 50);
+            circleRect.y = rand() % (600 - 50);
+        }
+
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+        SDL_RenderClear(renderer);
+
+        sprintf(title, "x%d", score);
+        SDL_Surface* fontSurface = TTF_RenderText_Solid(scoreFont, title, fontColor);
+        SDL_Texture* fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
+        SDL_FreeSurface(fontSurface);
+
+        SDL_RenderCopy(renderer, circleTexture, NULL, &circleRect);
+        SDL_RenderCopy(renderer, fontTexture, NULL, &fontRect);
+
+        SDL_DestroyTexture(fontTexture);
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
+    }
+
+    SDL_DestroyWindow(window);
+    SDL_DestroyTexture(circleTexture);
+    SDL_DestroyRenderer(renderer);
+    SDL_Quit();
+
+    return 0;
+}

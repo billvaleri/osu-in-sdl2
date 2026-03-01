@@ -1,0 +1,129 @@
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include <SDL2/SDL_ttf.h>
+#include <stdbool.h>
+#include <stdlib.h>
+#include <stdio.h>
+#include <time.h>
+
+int score = 0;
+char title[50];
+int ch_back;
+
+int main() {
+    srand(time(0));
+    sprintf(title, "x%d", score);
+
+    printf("1. Freedom dive\n");
+    printf("0. Exit\n");
+    printf("Choice background: ");
+    scanf("%d", &ch_back);
+
+    if(ch_back == 0) {
+        return 0;
+    }
+
+    SDL_Init(SDL_INIT_VIDEO);
+    IMG_Init(IMG_INIT_PNG);
+    TTF_Init();
+
+    SDL_Window* window = SDL_CreateWindow("Osu!", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, 800, 600, SDL_WINDOW_SHOWN);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+
+    SDL_Color fontColor = {255, 255, 255, 255};
+    TTF_Font* scoreFont = TTF_OpenFont("fonts/Eitai.ttf", 24);
+
+    SDL_Surface* backSurface;
+    SDL_Surface* circleSurface = IMG_Load("images/circle.png");
+    
+    if(ch_back == 1) {
+        backSurface = IMG_Load("images/background1.png");
+    }
+    
+    SDL_Texture* backTexture = SDL_CreateTextureFromSurface(renderer, backSurface);
+    SDL_Texture* circleTexture = SDL_CreateTextureFromSurface(renderer, circleSurface);
+    
+    SDL_FreeSurface(backSurface);
+    SDL_FreeSurface(circleSurface);
+
+    SDL_Rect circleRect, fontRect;
+    circleRect.w = 50;
+    circleRect.h = 50;
+    circleRect.x = rand() % (800 - 50);
+    circleRect.y = rand() % (600 - 50);
+
+    fontRect.w = 50;
+    fontRect.h = 50;
+    fontRect.x = 0;
+    fontRect.y = 600 - 50;
+
+    SDL_Event event;
+    bool running = true;
+    int mouseX = 0, mouseY = 0;
+
+    while(running) {
+        while(SDL_PollEvent(&event)) {
+            if(event.type == SDL_QUIT) {
+                running = false;
+            }
+            if(event.type == SDL_MOUSEMOTION) {
+                mouseX = event.motion.x;
+                mouseY = event.motion.y;
+            }
+            if(event.type == SDL_MOUSEBUTTONDOWN) {
+                if(event.button.button == SDL_BUTTON_LEFT || event.button.button == SDL_BUTTON_RIGHT) {
+                    if(mouseX >= circleRect.x && mouseX <= circleRect.x + circleRect.w &&
+                       mouseY >= circleRect.y && mouseY <= circleRect.y + circleRect.h) {
+                        score += 1;
+                        circleRect.x = rand() % (800 - 50);
+                        circleRect.y = rand() % (600 - 50);
+                    }
+                    else {
+                        score = 0;
+                    }
+                }
+            }
+            if(event.type == SDL_KEYDOWN) {
+                if(event.key.keysym.sym == SDLK_z || event.key.keysym.sym == SDLK_x) {
+                    if(mouseX >= circleRect.x && mouseX <= circleRect.x + circleRect.w &&
+                       mouseY >= circleRect.y && mouseY <= circleRect.y + circleRect.h) {
+                        score += 1;
+                        circleRect.x = rand() % (800 - 50);
+                        circleRect.y = rand() % (600 - 50);
+                    }
+                    else {
+                        score = 0;
+                    }
+                }
+            }
+        }
+
+        SDL_RenderClear(renderer);
+        SDL_RenderCopy(renderer, backTexture, NULL, NULL);
+
+        sprintf(title, "x%d", score);
+        SDL_Surface* fontSurface = TTF_RenderText_Solid(scoreFont, title, fontColor);
+        SDL_Texture* fontTexture = SDL_CreateTextureFromSurface(renderer, fontSurface);
+        SDL_FreeSurface(fontSurface);
+
+        SDL_RenderCopy(renderer, circleTexture, NULL, &circleRect);
+        SDL_RenderCopy(renderer, fontTexture, NULL, &fontRect);
+
+        SDL_DestroyTexture(fontTexture);
+
+        SDL_RenderPresent(renderer);
+        SDL_Delay(16);
+    }
+
+    SDL_DestroyTexture(backTexture);
+    SDL_DestroyTexture(circleTexture);
+    SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    TTF_CloseFont(scoreFont);
+    
+    TTF_Quit();
+    IMG_Quit();
+    SDL_Quit();
+
+    return 0;
+}
